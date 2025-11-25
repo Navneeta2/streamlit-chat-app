@@ -1,0 +1,14 @@
+.env
+__pycache__
+# *.db
+st.session_state
+.DS_Store
+
+venv/
+cache/
+.devcontainer/
+
+
+open_ai_key.env
+
+*.log
