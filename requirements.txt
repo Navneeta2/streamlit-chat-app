@@ -3,4 +3,3 @@ pandas
 matplotlib
 pandasai
 litellm  # <--- Changed from pandasai_litellm
-sqlite3
