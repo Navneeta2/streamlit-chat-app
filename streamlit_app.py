@@ -10,13 +10,10 @@ from pandasai.config import Config
 
 from pandasai_litellm.litellm import LiteLLM
 
-# ------------------------------------------------------------
-# 🔧 Setup Streamlit UI
-# ------------------------------------------------------------
+
 st.set_page_config(layout="wide")
 st.title("🤖 Ask Your Database")
 
-# # Load environment variables
 # ENV_PATH = "/Users/navneetasharma/Desktop/Ask Data App New/open_ai_key.env"
 # load_dotenv(dotenv_path=ENV_PATH)
 openai_api_key = os.getenv("OPENAI_API_KEY") # LiteLLM can use this key for Gemini/GPT
@@ -25,19 +22,16 @@ if not openai_api_key:
     st.error("⚠️ OPENAI_API_KEY not found in environment variables. Please set it up.")
     st.stop()
 
-# Define paths (Adjust to your actual path)
+
 # DB_PATH = "/Users/navneetasharma/Desktop/Ask Data App New/sales.db"
 DB_PATH = "sales.db"
 
-# ------------------------------------------------------------
-# ✅ FIX: Initialize Session State at the Top Level
-# ------------------------------------------------------------
 if "messages" not in st.session_state:
     st.session_state.messages = []
 # ------------------------------------------------------------
 
 
-# --- ADAPTIVE COLUMN SELECTION ---
+
 Y_AXIS_KEYWORDS = {
     'price': ['price', 'cost', 'value', 'unit_price'],
     'quantity': ['quantity', 'count', 'amount'],
@@ -60,9 +54,6 @@ def find_best_y_column(df, query, numeric_cols):
         
     return numeric_cols[0] if numeric_cols else None
 
-# ------------------------------------------------------------
-# 🗄️ Cached Data Loading and SmartDatalake Initialization
-# ------------------------------------------------------------
 
 @st.cache_data(show_spinner="Connecting to DB and Loading Tables...")
 def load_data_and_create_sdl(db_path, openai_key):
@@ -88,14 +79,14 @@ def load_data_and_create_sdl(db_path, openai_key):
             
         conn.close() 
         
-        # Use a powerful model for reasoning and code generation
+  
         llm = LiteLLM(model="openai/gpt-4o", api_key=openai_key) 
         
-        # SDL for structured DataFrame output (Simulates generate_data_code tool)
+ 
         config_df = Config(llm=llm, save_charts=False, output_type='dataframe')
         sdl_df = SmartDatalake(list(tables_dict.values()), config=config_df)
         
-        # SDL for unstructured text output (Simulates generate_observation tool)
+        
         config_text = Config(llm=llm, save_charts=False, output_type='text')
         sdl_text = SmartDatalake(list(tables_dict.values()), config=config_text)
         
@@ -107,13 +98,11 @@ def load_data_and_create_sdl(db_path, openai_key):
 
 tables_dict, table_names, sdl_df, sdl_text = load_data_and_create_sdl(DB_PATH, openai_api_key)
 
-# ------------------------------------------------------------
-# 💬 Main App Logic (Chat Interface)
-# ------------------------------------------------------------
+
 
 if sdl_df and sdl_text:
     
-    # 2. Sidebar and Table Preview
+
     with st.sidebar:
         st.header("📋 Available Tables")
         st.write(table_names)
@@ -122,7 +111,7 @@ if sdl_df and sdl_text:
         if selected_table in tables_dict:
             st.write(f"### Preview of `{selected_table}`", tables_dict[selected_table].head())
             
-    # 3. Display Past Messages
+  
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             if "content" in message:
@@ -134,26 +123,24 @@ if sdl_df and sdl_text:
                 st.write("**Visual Chart:**")
                 st.pyplot(message["fig"])
     
-    # 4. Handle New User Input
+ 
     if query := st.chat_input("Ask a question about your data (e.g., 'top products by quantity')..."):
         
-        # A. Add user message to history and display it
+      
         st.session_state.messages.append({"role": "user", "content": query})
         with st.chat_message("user"):
             st.markdown(query)
 
-        # B. Start Assistant's Response
+       
         with st.chat_message("assistant"):
             status = st.empty() 
             status.info("🤔 **Reasoning:** Calling `generate_data_code` tool...")
             
-            # Temporary object to collect results before appending to history
+            
             assistant_response = {"role": "assistant", "content": f"**Query:** *{query}*"}
             
             try:
-                # ------------------------------------------------------------
-                # 🛠️ TOOL 1: generate_data_code (Executed by sdl_df)
-                # ------------------------------------------------------------
+               
                 prompt_df = f"""
                 You are a data analyst assistant. The user asked: "{query}"
 
