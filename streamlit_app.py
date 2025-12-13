@@ -167,9 +167,9 @@ if sdl_df and sdl_text:
                 elif isinstance(response_df, pd.DataFrame):
                     df_result = response_df
                 
-                # ------------------------------------------------------------
-                # 🛠️ TOOL 2: generate_observation (Executed by sdl_text)
-                # ------------------------------------------------------------
+
+                # generate_observation (Executed by sdl_text)
+            
                 if df_result is not None and not df_result.empty:
                     
                     status.info("🧠 **Analysis:** Calling `generate_observation` tool for insights...")
